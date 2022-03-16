@@ -1,0 +1,298 @@
+<html>
+    <head>
+        <title> web server test 1 </title>
+        <link rel="stylesheet" href="style.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    </head>
+
+
+
+
+    <body>
+
+        <div class="image-container pattern row">
+            <div class="left">
+              <img id="b1" class="set" src = "./shape/5-4.png">
+            </div>
+            <div class="right">
+                <?php 
+             $conn = mysqli_connect("localhost", "root", "infinite2020" , "wordpress");
+             $sql = "SELECT `post_name`, `guid`,`post_title` FROM `wp_posts` WHERE `post_name` LIKE 'k%' AND `post_type` = 'attachment' ORDER BY `wp_posts`.`post_name` ASC LIMIT 6" ;
+             $result = mysqli_query($conn, $sql);
+                while($row = mysqli_fetch_array($result)){
+                echo "<img id='".$row["post_name"]."' value='".$row["post_title"]."' src='".$row["guid"]."'>";
+                }
+                mysqli_close($conn);
+             ?>
+            </div>
+        </div>
+
+        <div class="image-container clothes row">
+            <div class="left">
+                <img id="b2" class="set"src = "./shape/5-5.png">
+            </div>
+            <div class="right">
+                <?php 
+             $conn = mysqli_connect("localhost", "root", "infinite2020" , "wordpress");
+             $sql = "SELECT `post_name`, `guid`,`post_title` FROM `wp_posts` WHERE `post_name` LIKE 'k%' AND `post_type` = 'attachment' ORDER BY `wp_posts`.`post_name` ASC LIMIT 6" ;
+             $result = mysqli_query($conn, $sql);
+                while($row = mysqli_fetch_array($result)){
+                echo "<img id='".$row["post_name"]."' value='".$row["post_title"]."' src='".$row["guid"]."'>";
+                }
+                mysqli_close($conn);
+             ?>
+               </div>
+        </div>
+
+            <img id="hidden" class="base">
+
+            <canvas id="canvas" width="800" height="500"></canvas>
+            <canvas id="canvas-compose" width="800" height="500" ></canvas>
+
+            <div id="option1"></div>
+            <div id="option2"></div>
+            <div id="option3"></div>
+
+          
+            <center>
+              <div class="checks">
+              <input type="radio" id="size1" name="size" value="s">
+              <label for="size1">S </label>
+              <input type="radio" id="size2"name="size" value="m">
+              <label for="size2">M </label>
+              <input type="radio" id="size3" name="size" value="l">
+              <label for="size3">L</label>
+            </div>
+            
+            <?php echo "its test" ?>
+
+            <div class="frame">
+              <div class="box" id="qty"></div>
+              
+            </div>
+
+
+        <button id="add">確認</button>
+        <button id="addtocart" class="hey">この組み合わせで購入</button>
+
+        <form action="new.php" method="post" >
+            <!--$_POST["test"]-->
+            <input type="hidden" name="test" id="test"><br>
+            <input id="addcart" type="submit" value="전송">
+            </form>
+
+      </center>
+
+        <script>
+            window.onload = function(){
+
+                var ctx_canvas = document.getElementById("canvas");     // canvas 읽어옴
+                var ctx = ctx_canvas.getContext('2d');
+                var comctx_canvas = document.getElementById("canvas-compose");  // canvas-compose 읽어옴
+                var comctx = comctx_canvas.getContext('2d');
+
+                var b1 = new Image();
+                var b2 = new Image();
+
+                b1.src = "./shape/5-2.png";
+                b2.src = "./shape/5-3.png";
+
+                // 1 옷감 이미지 클릭시
+                $(".pattern img").on('click',function(e){
+                    var id = $(this).attr("id");
+                    var value = $(this).attr("value")
+                    $("#hidden").attr("src", "./base/" + id + ".jpg");    // 클릭된 옷감을 id 가 hidden 인 위치에 저장한다.
+                    $("#option1").attr("class", id );
+                    $("#option1").attr("value", value);
+
+                    //clipping code
+                    var img1 = document.getElementById("hidden");   // 위에 저장한 이미지를 변수로 읽어온다.
+
+                    // 티셔츠 패턴에 읽어온 옷감 이미지를 합성한다.
+                    ctx.drawImage(b1, 0, 0, 800, 500);
+                    ctx.globalCompositeOperation = "source-in";
+                    ctx.drawImage(img1, 0, 0, 800, 500);
+
+                    // 위에서 합성한 이미지를
+                    ctx.globalCompositeOperation = "source-over";
+                    ctx.drawImage(comctx_canvas, 0, 0, 800, 500);
+
+
+                })
+
+                // 2 옷감 변경. 위의 코드와 동일한 구조.
+                $(".clothes img").on('click',function(e){
+                    var id = $(this).attr("id");
+                    var value = $(this).attr("value");
+                    $("#hidden").attr("src", "./base/" + id + ".jpg");
+                    $("#option2").attr("class", id);
+                    $("#option2").attr("value", value);
+
+                    //clipping code
+                    img1 = document.getElementById("hidden");
+
+                    comctx.drawImage(b2, 0, 0, 800, 500);
+                    comctx.globalCompositeOperation = "source-in";
+                    comctx.drawImage(img1, 0, 0, 800, 500);
+
+                    ctx.globalCompositeOperation = "source-over";
+                    ctx.drawImage(comctx_canvas, 0, 0, 800, 500);
+
+
+                })
+
+
+            }
+
+
+
+            $(function(){
+
+$('#add').on('click',function(){
+    var c1 = $("#option1").attr("class");
+    var c2 = $("#option2").attr("class");
+    var sized = $('input[name=size]:checked').val();
+
+    var i = 6329;
+
+  var result =(function(){
+    if(c1 == 'k01' && c2 == 'k01' && sized == 's') return i;
+    if(c1 == 'k01' && c2 == 'k02' && sized == 's') return i+1;
+    if(c1 == 'k01' && c2 == 'k03' && sized == 's') return i+2;
+    if(c1 == 'k01' && c2 == 'k04' && sized == 's') return i+3;
+    if(c1 == 'k01' && c2 == 'k05' && sized == 's') return i+4;
+    if(c1 == 'k01' && c2 == 'k06' && sized == 's') return i+5;
+    if(c1 == 'k02' && c2 == 'k01' && sized == 's') return i+6;
+    if(c1 == 'k02' && c2 == 'k02' && sized == 's') return i+7;
+    if(c1 == 'k02' && c2 == 'k03' && sized == 's') return i+8;
+    if(c1 == 'k02' && c2 == 'k04' && sized == 's') return i+9;
+    if(c1 == 'k02' && c2 == 'k05' && sized == 's') return i+10;
+    if(c1 == 'k02' && c2 == 'k06' && sized == 's') return i+11;
+    if(c1 == 'k03' && c2 == 'k01' && sized == 's') return i+12;
+    if(c1 == 'k03' && c2 == 'k02' && sized == 's') return i+13;
+    if(c1 == 'k03' && c2 == 'k03' && sized == 's') return i+14;
+    if(c1 == 'k03' && c2 == 'k04' && sized == 's') return i+15;
+    if(c1 == 'k03' && c2 == 'k05' && sized == 's') return i+16;
+    if(c1 == 'k03' && c2 == 'k06' && sized == 's') return i+17;
+    if(c1 == 'k04' && c2 == 'k01' && sized == 's') return i+18;
+    if(c1 == 'k04' && c2 == 'k02' && sized == 's') return i+19;
+    if(c1 == 'k04' && c2 == 'k03' && sized == 's') return i+20;
+    if(c1 == 'k04' && c2 == 'k04' && sized == 's') return i+21;
+    if(c1 == 'k04' && c2 == 'k05' && sized == 's') return i+22;
+    if(c1 == 'k04' && c2 == 'k06' && sized == 's') return i+23;
+    if(c1 == 'k05' && c2 == 'k01' && sized == 's') return i+24;
+    if(c1 == 'k05' && c2 == 'k02' && sized == 's') return i+25;
+    if(c1 == 'k05' && c2 == 'k03' && sized == 's') return i+26;
+    if(c1 == 'k05' && c2 == 'k04' && sized == 's') return i+27;
+    if(c1 == 'k05' && c2 == 'k05' && sized == 's') return i+28;
+    if(c1 == 'k05' && c2 == 'k06' && sized == 's') return i+29;
+    if(c1 == 'k06' && c2 == 'k01' && sized == 's') return i+30;
+    if(c1 == 'k06' && c2 == 'k02' && sized == 's') return i+31;
+    if(c1 == 'k06' && c2 == 'k03' && sized == 's') return i+32;
+    if(c1 == 'k06' && c2 == 'k04' && sized == 's') return i+33;
+    if(c1 == 'k06' && c2 == 'k05' && sized == 's') return i+34;
+    if(c1 == 'k06' && c2 == 'k06' && sized == 's') return i+35;
+    if(c1 == 'k01' && c2 == 'k01' && sized == 'm') return i+36;
+    if(c1 == 'k01' && c2 == 'k02' && sized == 'm') return i+37;
+    if(c1 == 'k01' && c2 == 'k03' && sized == 'm') return i+38;
+    if(c1 == 'k01' && c2 == 'k04' && sized == 'm') return i+39;
+    if(c1 == 'k01' && c2 == 'k05' && sized == 'm') return i+40;
+    if(c1 == 'k01' && c2 == 'k06' && sized == 'm') return i+41;
+    if(c1 == 'k02' && c2 == 'k01' && sized == 'm') return i+42;
+    if(c1 == 'k02' && c2 == 'k02' && sized == 'm') return i+43;
+    if(c1 == 'k02' && c2 == 'k03' && sized == 'm') return i+44;
+    if(c1 == 'k02' && c2 == 'k04' && sized == 'm') return i+45;
+    if(c1 == 'k02' && c2 == 'k05' && sized == 'm') return i+46;
+    if(c1 == 'k02' && c2 == 'k06' && sized == 'm') return i+47;
+    if(c1 == 'k03' && c2 == 'k01' && sized == 'm') return i+48;
+    if(c1 == 'k03' && c2 == 'k02' && sized == 'm') return i+49;
+    if(c1 == 'k03' && c2 == 'k03' && sized == 'm') return i+50;
+    if(c1 == 'k03' && c2 == 'k04' && sized == 'm') return i+51;
+    if(c1 == 'k03' && c2 == 'k05' && sized == 'm') return i+52;
+    if(c1 == 'k03' && c2 == 'k06' && sized == 'm') return i+53;
+    if(c1 == 'k04' && c2 == 'k01' && sized == 'm') return i+54;
+    if(c1 == 'k04' && c2 == 'k02' && sized == 'm') return i+55;
+    if(c1 == 'k04' && c2 == 'k03' && sized == 'm') return i+56;
+    if(c1 == 'k04' && c2 == 'k04' && sized == 'm') return i+57;
+    if(c1 == 'k04' && c2 == 'k05' && sized == 'm') return i+58;
+    if(c1 == 'k04' && c2 == 'k06' && sized == 'm') return i+59;
+    if(c1 == 'k05' && c2 == 'k01' && sized == 'm') return i+60;
+    if(c1 == 'k05' && c2 == 'k02' && sized == 'm') return i+61;
+    if(c1 == 'k05' && c2 == 'k03' && sized == 'm') return i+62;
+    if(c1 == 'k05' && c2 == 'k04' && sized == 'm') return i+63;
+    if(c1 == 'k05' && c2 == 'k05' && sized == 'm') return i+64;
+    if(c1 == 'k05' && c2 == 'k06' && sized == 'm') return i+65;
+    if(c1 == 'k06' && c2 == 'k01' && sized == 'm') return i+66;
+    if(c1 == 'k06' && c2 == 'k02' && sized == 'm') return i+67;
+    if(c1 == 'k06' && c2 == 'k03' && sized == 'm') return i+68;
+    if(c1 == 'k06' && c2 == 'k04' && sized == 'm') return i+69;
+    if(c1 == 'k06' && c2 == 'k05' && sized == 'm') return i+70;
+    if(c1 == 'k06' && c2 == 'k06' && sized == 'm') return i+71;
+    if(c1 == 'k01' && c2 == 'k01' && sized == 'l') return i+72;
+    if(c1 == 'k01' && c2 == 'k02' && sized == 'l') return i+73;
+    if(c1 == 'k01' && c2 == 'k03' && sized == 'l') return i+74;
+    if(c1 == 'k01' && c2 == 'k04' && sized == 'l') return i+75;
+    if(c1 == 'k01' && c2 == 'k05' && sized == 'l') return i+76;
+    if(c1 == 'k01' && c2 == 'k06' && sized == 'l') return i+77;
+    if(c1 == 'k02' && c2 == 'k01' && sized == 'l') return i+78;
+    if(c1 == 'k02' && c2 == 'k02' && sized == 'l') return i+79;
+    if(c1 == 'k02' && c2 == 'k03' && sized == 'l') return i+80;
+    if(c1 == 'k02' && c2 == 'k04' && sized == 'l') return i+81;
+    if(c1 == 'k02' && c2 == 'k05' && sized == 'l') return i+82;
+    if(c1 == 'k02' && c2 == 'k06' && sized == 'l') return i+83;
+    if(c1 == 'k03' && c2 == 'k01' && sized == 'l') return i+84;
+    if(c1 == 'k03' && c2 == 'k02' && sized == 'l') return i+85;
+    if(c1 == 'k03' && c2 == 'k03' && sized == 'l') return i+86;
+    if(c1 == 'k03' && c2 == 'k04' && sized == 'l') return i+87;
+    if(c1 == 'k03' && c2 == 'k05' && sized == 'l') return i+88;
+    if(c1 == 'k03' && c2 == 'k06' && sized == 'l') return i+89;
+    if(c1 == 'k04' && c2 == 'k01' && sized == 'l') return i+90;
+    if(c1 == 'k04' && c2 == 'k02' && sized == 'l') return i+91;
+    if(c1 == 'k04' && c2 == 'k03' && sized == 'l') return i+92;
+    if(c1 == 'k04' && c2 == 'k04' && sized == 'l') return i+93;
+    if(c1 == 'k04' && c2 == 'k05' && sized == 'l') return i+94;
+    if(c1 == 'k04' && c2 == 'k06' && sized == 'l') return i+95;
+    if(c1 == 'k05' && c2 == 'k01' && sized == 'l') return i+96;
+    if(c1 == 'k05' && c2 == 'k02' && sized == 'l') return i+97;
+    if(c1 == 'k05' && c2 == 'k03' && sized == 'l') return i+98;
+    if(c1 == 'k05' && c2 == 'k04' && sized == 'l') return i+99;
+    if(c1 == 'k05' && c2 == 'k05' && sized == 'l') return i+100;
+    if(c1 == 'k05' && c2 == 'k06' && sized == 'l') return i+101;
+    if(c1 == 'k06' && c2 == 'k01' && sized == 'l') return i+102;
+    if(c1 == 'k06' && c2 == 'k02' && sized == 'l') return i+103;
+    if(c1 == 'k06' && c2 == 'k03' && sized == 'l') return i+104;
+    if(c1 == 'k06' && c2 == 'k04' && sized == 'l') return i+105;
+    if(c1 == 'k06' && c2 == 'k05' && sized == 'l') return i+106;
+    if(c1 == 'k06' && c2 == 'k06' && sized == 'l') return i+107;
+
+
+    return '6329';
+  })();
+
+var d1 = $("#option1").attr("value");
+var d2 = $("#option2").attr("value");
+
+$('#test').attr("value",result);
+
+
+
+var sum = parseInt(d1) + parseInt(d2);
+document.getElementById("qty").innerText = sum;
+
+
+$('#addtocart').attr("onclick",'location.href="http://160.16.213.240/?add-to-cart=6328&variation_id='+ result+'"');
+
+});
+
+});
+
+
+</script>
+
+
+
+    </body>
+
+
+</html>
